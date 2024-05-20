@@ -13,6 +13,37 @@ class DatabaseRepository:
             os.path.join(os.getcwd(), os.path.dirname(__file__))
         )
         self.db = sqlite3.connect(os.path.join(self.path, DB_NAME))
+        cursor = self.cursor()
+        with cursor.connection:
+            cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS users (
+                        user_id    INTEGER NOT NULL
+                                           UNIQUE,
+                        created_at TEXT    DEFAULT NULL,
+                        name       TEXT,
+                        passed     INTEGER DEFAULT (0) 
+                    );
+                    """)
+            cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS words (
+                        word_id     INTEGER PRIMARY KEY AUTOINCREMENT
+                                            NOT NULL,
+                        word        TEXT    UNIQUE,
+                        level       INTEGER,
+                        translation TEXT    NOT NULL
+                                            DEFAULT ""
+                    );
+                    """)
+            cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS suggestions (
+                        word_id   INTEGER NOT NULL,
+                        user_id   INTEGER NOT NULL,
+                        num_tries INTEGER NOT NULL
+                                          DEFAULT (0),
+                        passed    INTEGER DEFAULT (0) 
+                                          NOT NULL
+                    );
+                    """)
 
     @staticmethod
     def cursor():
@@ -32,7 +63,7 @@ class DatabaseRepository:
                      ORDER BY RANDOM() LIMIT 1;
                  """, (user_id,))
             row = cursor.fetchone()
-            word = Word(row[2], row[0], row[1],None)
+            word = Word(row[2], row[0], row[1], None)
         cursor.connection.commit()
         cursor.connection.close()
         return word
@@ -94,6 +125,8 @@ class DatabaseRepository:
         with cursor.connection:
             cursor.execute("UPDATE suggestions SET passed = ? WHERE word_id = ? AND user_id = ?",
                            (passed, word_id, user_id))
+            if passed == 1:
+                cursor.execute("UPDATE users SET passed = passed + 1 WHERE user_id = ?", (user_id,))
         cursor.connection.commit()
         cursor.connection.close()
 
@@ -117,3 +150,25 @@ class DatabaseRepository:
         with cursor.connection:
             cursor.execute("UPDATE users SET name = ? WHERE user_id = ?",
                            (user_name, user_id))
+
+    # get top list of users by words passed count
+    def get_top_list_of_users(self):
+        cursor = self.cursor()
+        with cursor.connection:
+            cursor.execute("""SELECT u.user_id, u.name, u.passed
+                               FROM users u
+                               ORDER BY u.passed DESC LIMIT 10;""")
+            rows = cursor.fetchall()
+            top_list = []
+            for row in rows:
+                top_list.append(User(row[0], row[1], row[2]))
+        cursor.connection.commit()
+        cursor.connection.close()
+        return top_list
+
+
+class User:
+    def __init__(self, user_id, user_name, passed):
+        self.user_id = user_id
+        self.user_name = user_name
+        self.passed = passed

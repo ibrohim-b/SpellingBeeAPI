@@ -10,5 +10,5 @@ Accept: application/json
 
 ###
 
-GET https://api.dictionaryapi.dev/api/v2/entries/en/natural
+GET http://127.0.0.1:8000/statistics/get_top_list_of_users
 Accept: application/json

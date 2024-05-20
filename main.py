@@ -59,3 +59,9 @@ async def get_total_words_passed_count(user_id: int):
 @app.get("/statistics/get_total_words_count")
 async def get_total_words_count():
     return db_sdk.get_total_words_count()
+
+
+# view top list of users by words passed count
+@app.get("/statistics/get_top_list_of_users")
+async def get_top_list_of_users():
+    return db_sdk.get_top_list_of_users()
