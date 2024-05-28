@@ -1,9 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+import setproctitle
+
 from Word import Word
 from db_sdk import DatabaseRepository
 from dictionary_sdk import DictionaryClient
+
+setproctitle.setproctitle("SpellingBeeAPI")
 
 app = FastAPI()
 
