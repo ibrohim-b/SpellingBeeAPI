@@ -6,4 +6,4 @@ source .venv/bin/activate
 python3 -m pip install --upgrade pip
 if  [ -f requirements.txt ]; then pip install -r /home/python-projects/SpellingBeeTelegramBot/requirements.txt; fi
 #Launch main:app with nohup
-nohup uvicorn main:app --host 159.223.180.158 --port 8000 >/dev/null 2>&1 &
+nohup "$(uvicorn main:app --host 159.223.180.158 --port 8000 >/dev/null 2>&1 &)"
