@@ -1,0 +1,5 @@
+.idea/*
+words.db
+test_main.http
+.env
+.venv
